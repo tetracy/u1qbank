@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Uworld step1</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <!-- SVG 图标定义 -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <!-- Lab 图标 -->
+        <symbol id="labsIcon" viewBox="0 0 260 340">
+            <defs>
+                <linearGradient id="yellowBeaker" x2="0" y2="1">
+                    <stop offset="15%" stop-color="rgba(255,255,255,0.7)" />
+                    <stop offset="17%" stop-color="yellow" />
+                </linearGradient>
+                <linearGradient id="pinkBeaker" x2="0" y2="1">
+                    <stop offset="30%" stop-color="rgba(255,255,255,0.7)" />
+                    <stop offset="35%" stop-color="pink" />
+                </linearGradient>
+                <linearGradient id="tealBeaker" x2="0" y2="1">
+                    <stop offset="40%" stop-color="rgba(255,255,255,0.85)" />
+                    <stop offset="42%" stop-color="skyblue" />
+                </linearGradient>
+            </defs>
+            <rect x="59" y="30" width="140" height="200" rx="20" ry="20" fill="url(#yellowBeaker)" />
+            <rect x="175" y="14" width="55" height="290" rx="10" ry="10" fill="url(#pinkBeaker)" />
+            <path d="M50,90 l-35,130 t-1,30 0,30 t48,20 130,-20 v-60 l-35-130 z" fill="url(#tealBeaker)" />
+        </symbol>
+
+        <!-- Notes 图标 -->
+        <symbol id="noteIcon" viewBox="0 0 160 160">
+            <defs>
+                <g id="pencil">
+                    <rect transform="rotate(-60,90,48)" width="90" height="30" style="fill:#F7971D" />
+                    <polyline points="3,102 5,127 30,117" style="fill:#FFF" />
+                    <polyline points="4.5,117 5,127 14.5,123" />
+                    <rect transform="rotate(-60,45,-30)" width="25" height="30" style="fill:#F06567" />
+                </g>
+            </defs>
+            <rect x="0" y="20" width="130" height="80" fill="#FCFCFC" />
+            <text x="20" y="70" style="font-family: 'Chalkboard SE', 'Segoe Print', cursive; font-size: 40px;">ABC</text>
+            <use xlink:href="#pencil" transform="rotate(25) translate(100,-20)" />
+        </symbol>
+
+        <!-- Calculator 图标 -->
+        <symbol id="calcIcon" viewBox="2 2 32 28">
+            <rect style="fill:#999" width="28" height="24" x="3.5" y="3.5" rx="3.5" />
+            <path style="fill:#999" d="M3.5,22.5 l 0,5 l 28,0 l 0,-5" />
+            <rect width="24" height="10" x="5.5" y="7.5" />
+            <text style="font-size:8px;font-family:Tahoma"><tspan x="9" y="15">0.25</tspan></text>
+            <rect width="4" height="3" x="5.5" y="21.5" />
+            <rect width="4" height="3" x="11.5" y="21.5" />
+            <rect width="4" height="3" x="18.5" y="21.5" />
+            <rect width="4" height="3" x="24.5" y="21.5" />
+        </symbol>
+    </svg>
+
+    <!-- 左侧答题卡 -->
+    <div class="sidebar">
+        <ul id="item-list"></ul>
+    </div>
+
+    <!-- 右侧主内容区 -->
+    <div class="main-content">
+        <!-- 顶栏 -->
+        <div class="topbar">
+            <div class="item-info">
+				<span><span id="current-num">1</span>/<span>40</span>| Quesiton Id: <span id="current-item"></span></span>
+                <button class="mark-btn" id="mark-btn">
+                    🚩 Mark
+                </button>
+            </div>
+            <div class="nav-buttons">
+                <button id="prev-btn">
+                    <svg class="icon" viewBox="0 0 10 10">
+                        <polyline points="8 1 2 5 8 9" fill="none" stroke="white" stroke-width="1.5" />
+                    </svg>
+                    Previous
+                </button>
+                <button id="next-btn">
+                    Next
+                    <svg class="icon" viewBox="0 0 10 10">
+                        <polyline points="2 1 8 5 2 9" fill="none" stroke="white" stroke-width="1.5" />
+                    </svg>
+                </button>
+            </div>
+            <div class="tool-buttons">
+                <!-- 按钮顺序调整为Lab、Notes、Calculator -->
+                <button id="lab-btn">
+                    <svg class="icon">
+                        <use xlink:href="#labsIcon" />
+                    </svg>
+                    Lab
+                </button>
+                <button id="notes-btn">
+                    <svg class="icon">
+                        <use xlink:href="#noteIcon" />
+                    </svg>
+                    Notes
+                </button>
+                <button id="calc-btn">
+                    <svg class="icon">
+                        <use xlink:href="#calcIcon" />
+                    </svg>
+                    Calculator
+                </button>
+            </div>
+        </div>
+
+   <!-- 内容区 -->
+        <div class="content">
+            <div class="question-section">
+                <div class="question-stem" id="question-stem">Loading question...</div>
+                <div class="options-container">
+                    <div class="options" id="options-container"></div>
+                    <button class="show-answer-btn" id="show-answer-btn">Show Answer</button>
+                </div>
+                <!-- The answer-explanation div is moved from here -->
+                <button class="proceed-btn" id="proceed-btn">Proceed to Next Item</button>
+            </div>
+            <div class="image-section">
+                <div id="image-container"></div>
+                <!-- The answer-explanation div is now here, below the image-container -->
+                <div class="answer-explanation" id="answer-explanation" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- 底栏 -->
+        <div class="bottombar">
+            <div class="timer-section">
+                <div id="block-time">Block Time Remaining: 75:00</div>
+            </div>
+            <button class="end-block-btn" id="end-block-btn">
+                <span class="red-hexagon" id="end-icon"></span> End Block
+            </button>
+        </div>
+    </div>
+
+    <!-- 实验室参考值悬浮窗 -->
+    <div class="lab-reference-window" id="lab-reference-window">
+        <div class="lab-tabs">
+            <div class="lab-tab active" data-tab="serum">Serum</div>
+            <div class="lab-tab" data-tab="cerebrospinal">Cerebrospinal</div>
+            <div class="lab-tab" data-tab="blood">Blood</div>
+            <div class="lab-tab" data-tab="urine">Urine and BMI</div>
+        </div>
+        <div class="lab-content">
+            <!-- 血清参考值表格 -->
+            <table class="lab-table active" id="serum-table">
+                <tr>
+                    <th>Serum</th>
+                    <th>Reference Range</th>
+                    <th>Sl Reference</th>
+                </tr>
+                <tr>
+                    <td>Alanine aminotransferase (ALT)</td>
+                    <td>10–40 U/L</td>
+                    <td>10–40 U/L</td>
+                </tr>
+                <tr>
+                    <td>Aspartate aminotransferase (AST)</td>
+                    <td>12–38 U/L</td>
+                    <td>12–38 U/L</td>
+                </tr>
+                <tr>
+                    <td>Alkaline phosphatase</td>
+                    <td>25–100 U/L</td>
+                    <td>25–100 U/L</td>
+                </tr>
+                <tr>
+                    <td>Amylase</td>
+                    <td>25–125 U/L</td>
+                    <td>25–125 U/L</td>
+                </tr>
+                <tr>
+                    <td>Bilirubin, total // direct</td>
+                    <td>0.1–1.0 mg/dL // 0.0–0.3 mg/dL</td>
+                    <td>2–17 μmol/L // 0–5 μmol/L</td>
+                </tr>
+                <tr>
+                    <td>Calcium</td>
+                    <td>8.4–10.2 mg/dL</td>
+                    <td>2.1–2.6 mmol/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Cholesterol</th>
+                </tr>
+                <tr>
+                    <td>Total</td>
+                    <td>Normal: &lt;200 mg/dL // High: &gt;240 mg/dL</td>
+                    <td>&lt;5.2 mmol/L // &gt;6.2 mmol/L</td>
+                </tr>
+                <tr>
+                    <td>HDL</td>
+                    <td>40–60 mg/dL</td>
+                    <td>1.0–1.6 mmol/L</td>
+                </tr>
+                <tr>
+                    <td>LDL</td>
+                    <td>&lt;160 mg/dL</td>
+                    <td>&lt;4.2 mmol/L</td>
+                </tr>
+                <tr>
+                    <td>Triglycerides</td>
+                    <td>Normal: &lt;150 mg/dL // Borderline: 151–199 mg/dL</td>
+                    <td>&lt;1.70 mmol/L // 1.71–2.25 mmol/L</td>
+                </tr>
+                <tr>
+                    <td>Cortisol</td>
+                    <td>0800 h: 5–23 μg/dL // 1600 h: 3–15 μg/dL；2000 h: &lt;50% of 0800 h</td>
+                    <td>138–635 nmol/L // 82–413 nmol/L；Fraction of 0800 h: &lt;0.50</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Creatine kinase</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>25–90 U/L</td>
+                    <td>25–90 U/L</td>
+                </tr>
+                <tr>
+                    <td>Female</td>
+                    <td>10–70 U/L</td>
+                    <td>10–70 U/L</td>
+                </tr>
+                <tr>
+                    <td>Creatinine</td>
+                    <td>0.6–1.2 mg/dL</td>
+                    <td>53–106 μmol/L</td>
+                </tr>
+                <tr>
+                    <td>Urea nitrogen</td>
+                    <td>7–18 mg/dL</td>
+                    <td>2.5–6.4 mmol/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Creatinine clearance</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>97–137 mL/min</td>
+                    <td>97–137 mL/min</td>
+                </tr>
+                <tr>
+                    <td>Female</td>
+                    <td>88–128 mL/min</td>
+                    <td>88–128 mL/min</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Electrolytes, serum</th>
+                </tr>
+                <tr>
+                    <td>Sodium (Na⁺)</td>
+                    <td>136–146 mEq/L</td>
+                    <td>136–146 mmol/L</td>
+                </tr>
+                <tr>
+                    <td>Potassium (K⁺)</td>
+                    <td>3.5–5.0 mEq/L</td>
+                    <td>3.5–5.0 mmol/L</td>
+                </tr>
+                <tr>
+                    <td>Chloride (Cl⁻)</td>
+                    <td>95–105 mEq/L</td>
+                    <td>95–105 mmol/L</td>
+                </tr>
+                <tr>
+                    <td>Bicarbonate (HCO₃⁻)</td>
+                    <td>22–28 mEq/L</td>
+                    <td>22–28 mmol/L</td>
+                </tr>
+                <tr>
+                    <td>Magnesium (Mg²⁺)</td>
+                    <td>1.5–2.0 mEq/L</td>
+                    <td>0.75–1.0 mmol/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Ferritin</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>20–250 ng/mL</td>
+                    <td>20–250 μg/L</td>
+                </tr>
+                <tr>
+                    <td>Female</td>
+                    <td>10–120 ng/mL</td>
+                    <td>10–120 μg/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Follicle-stimulating hormone</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>4–25 mIU/mL</td>
+                    <td>4–25 U/L</td>
+                </tr>
+                <tr>
+                    <td>Female (premenopause)</td>
+                    <td>4–30 mIU/mL</td>
+                    <td>4–30 U/L</td>
+                </tr>
+                <tr>
+                    <td>Female (midcycle peak)</td>
+                    <td>10–90 mIU/mL</td>
+                    <td>10–90 IU/L</td>
+                </tr>
+                <tr>
+                    <td>Female (postmenopause)</td>
+                    <td>40–250 mIU/mL</td>
+                    <td>40–250 IU/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Glucose</th>
+                </tr>
+                <tr>
+                    <td>Fasting</td>
+                    <td>70–100 mg/dL</td>
+                    <td>3.8–5.6 mmol/L</td>
+                </tr>
+                <tr>
+                    <td>Random, non-fasting</td>
+                    <td>&lt;140 mg/dL</td>
+                    <td>&lt;7.77 mmol/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Growth hormone - arginine stimulation</th>
+                </tr>
+                <tr>
+                    <td>Fasting</td>
+                    <td>&lt;5 ng/mL</td>
+                    <td>&lt;5 μg/L</td>
+                </tr>
+                <tr>
+                    <td>Provocative stimuli</td>
+                    <td>&gt;7 ng/mL</td>
+                    <td>&gt;7 μg/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Iron</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>65–175 μg/dL</td>
+                    <td>11.6–31.3 μmol/L</td>
+                </tr>
+                <tr>
+                    <td>Female</td>
+                    <td>50–170 μg/dL</td>
+                    <td>9.0–30.4 μmol/L</td>
+                </tr>
+                <tr>
+                    <td>Total iron-binding capacity</td>
+                    <td>250–400 μg/dL</td>
+                    <td>44.8–71.6 μmol/L</td>
+                </tr>
+                <tr>
+                    <td>Transferrin</td>
+                    <td>200–360 mg/dL</td>
+                    <td>2.0–3.6 g/L</td>
+                </tr>
+                <tr>
+                    <td>Lactate dehydrogenase</td>
+                    <td>45–200 U/L</td>
+                    <td>45–200 U/L</td>
+                </tr>
+                <tr>
+                    <td>Lipase</td>
+                    <td>13–60 U/L</td>
+                    <td>13–60 U/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Luteinizing hormone</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>6–23 mIU/mL</td>
+                    <td>6–23 U/L</td>
+                </tr>
+                <tr>
+                    <td>Female (follicular phase)</td>
+                    <td>5–30 mIU/mL</td>
+                    <td>5–30 IU/L</td>
+                </tr>
+                <tr>
+                    <td>Female (midcycle)</td>
+                    <td>75–150 mIU/mL</td>
+                    <td>75–150 IU/L</td>
+                </tr>
+                <tr>
+                    <td>Female (postmenopause)</td>
+                    <td>30–200 mIU/mL</td>
+                    <td>30–200 IU/L</td>
+                </tr>
+                <tr>
+                    <td>Osmolality</td>
+                    <td>275–295 mOsmol/kg H₂O</td>
+                    <td>275–295 mOsmol/kg H₂O</td>
+                </tr>
+                <tr>
+                    <td>Intact parathyroid hormone (PTH)</td>
+                    <td>10–60 pg/mL</td>
+                    <td>10–60 ng/L</td>
+                </tr>
+                <tr>
+                    <td>Phosphorus (inorganic)</td>
+                    <td>3.0–4.5 mg/dL</td>
+                    <td>1.0–1.5 mmol/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Prolactin (hPRL)</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>&lt;17 ng/mL</td>
+                    <td>&lt;17 μg/L</td>
+                </tr>
+                <tr>
+                    <td>Female</td>
+                    <td>&lt;25 ng/mL</td>
+                    <td>&lt;25 μg/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Proteins</th>
+                </tr>
+                <tr>
+                    <td>Total</td>
+                    <td>6.0–7.8 g/dL</td>
+                    <td>60–78 g/L</td>
+                </tr>
+                <tr>
+                    <td>Albumin</td>
+                    <td>3.5–5.5 g/dL</td>
+                    <td>35–55 g/L</td>
+                </tr>
+                <tr>
+                    <td>Globulin</td>
+                    <td>2.3–3.5 g/dL</td>
+                    <td>23–35 g/L</td>
+                </tr>
+                <tr>
+                    <td>Troponin I</td>
+                    <td>≤0.04 ng/mL</td>
+                    <td>≤0.04 μg/L</td>
+                </tr>
+                <tr>
+                    <td>TSH</td>
+                    <td>0.4–4.0 μU/mL</td>
+                    <td>0.4–4.0 mIU/L</td>
+                </tr>
+                <tr>
+                    <td>Thyroidal iodine (¹²³I) uptake</td>
+                    <td>8%–30% of administered dose/24 h</td>
+                    <td>0.08–0.30/24 h</td>
+                </tr>
+                <tr>
+                    <td>Thyroxine (T₄)</td>
+                    <td>5–12 μg/dL</td>
+                    <td>64–155 nmol/L</td>
+                </tr>
+                <tr>
+                    <td>Free T₄</td>
+                    <td>0.9–1.7 ng/dL</td>
+                    <td>12.0–21.9 pmol/L</td>
+                </tr>
+                <tr>
+                    <td>Triiodothyronine (T₃) (RIA)</td>
+                    <td>100–200 ng/dL</td>
+                    <td>1.5–3.1 nmol/L</td>
+                </tr>
+                <tr>
+                    <td>Triiodothyronine (T₃) resin uptake</td>
+                    <td>25%–35%</td>
+                    <td>0.25–0.35</td>
+                </tr>
+                <tr>
+                    <td>Uric acid</td>
+                    <td>3.0–8.2 mg/dL</td>
+                    <td>0.18–0.48 mmol/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Immunoglobulins</th>
+                </tr>
+                <tr>
+                    <td>IgA</td>
+                    <td>76–390 mg/dL</td>
+                    <td>0.76–3.90 g/L</td>
+                </tr>
+                <tr>
+                    <td>IgE</td>
+                    <td>0–380 IU/mL</td>
+                    <td>0–380 kIU/L</td>
+                </tr>
+                <tr>
+                    <td>IgG</td>
+                    <td>650–1500 mg/dL</td>
+                    <td>6.5–15.0 g/L</td>
+                </tr>
+                <tr>
+                    <td>IgM</td>
+                    <td>50–300 mg/dL</td>
+                    <td>0.5–3.0 g/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Gases, arterial blood (room air)</th>
+                </tr>
+                <tr>
+                    <td>pH</td>
+                    <td>7.35–7.45</td>
+                    <td>[H⁺] 36–44 nmol/L</td>
+                </tr>
+                <tr>
+                    <td>PCO₂</td>
+                    <td>33–45 mm Hg</td>
+                    <td>4.4–5.9 kPa</td>
+                </tr>
+                <tr>
+                    <td>PO₂</td>
+                    <td>75–105 mm Hg</td>
+                    <td>10.0–14.0 kPa</td>
+                </tr>
+            </table>
+            
+            <!-- 脑脊液参考值表格 -->
+            <table class="lab-table" id="cerebrospinal-table">
+                <tr>
+                    <th>Cerebrospinal Fluid</th>
+                    <th>Reference Range</th>
+                    <th>Sl Reference</th>
+                </tr>
+                <tr>
+                    <td>Cell count</td>
+                    <td>0–5/mm³</td>
+                    <td>0–5×10⁶/L</td>
+                </tr>
+                <tr>
+                    <td>Chloride</td>
+                    <td>118–132 mEq/L</td>
+                    <td>118–132 mmol/L</td>
+                </tr>
+                <tr>
+                    <td>Gamma globulin</td>
+                    <td>3%–12% total proteins</td>
+                    <td>0.03–0.12</td>
+                </tr>
+                <tr>
+                    <td>Glucose</td>
+                    <td>40–70 mg/dL</td>
+                    <td>2.2–3.9 mmol/L</td>
+                </tr>
+                <tr>
+                    <td>Pressure</td>
+                    <td>70–180 mm H₂O</td>
+                    <td>70–180 mm H₂O</td>
+                </tr>
+                <tr>
+                    <td>Proteins, total</td>
+                    <td>&lt;40 mg/dL</td>
+                    <td>&lt;0.40 g/L</td>
+                </tr>
+            </table>
+            
+            <!-- 血液参考值表格 -->
+            <table class="lab-table" id="blood-table">
+                <tr>
+                    <th>Hematologic</th>
+                    <th>Reference Range</th>
+                    <th>Sl Reference</th>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Erythrocyte count (RBC)</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>4.3–5.9 million/mm³</td>
+                    <td>4.3–5.9×10¹²/L</td>
+                </tr>
+                <tr>
+                    <td>Female</td>
+                    <td>3.5–5.5 million/mm³</td>
+                    <td>3.5–5.5×10¹²/L</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Erythrocyte sedimentation rate (Westergren)</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>0–15 mm/h</td>
+                    <td>0–15 mm/h</td>
+                </tr>
+                <tr>
+                    <td>Female</td>
+                    <td>0–20 mm/h</td>
+                    <td>0–20 mm/h</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Hematocrit</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>41%–53%</td>
+                    <td>0.41–0.53</td>
+                </tr>
+                <tr>
+                    <td>Female</td>
+                    <td>36%–46%</td>
+                    <td>0.36–0.46</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Hemoglobin, blood</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>13.5–17.5 g/dL</td>
+                    <td>135–175 g/L</td>
+                </tr>
+                <tr>
+                    <td>Female</td>
+                    <td>12.0–16.0 g/dL</td>
+                    <td>120–160 g/L</td>
+                </tr>
+                <tr>
+                    <td>Hemoglobin A₁c</td>
+                    <td>≤6%</td>
+                    <td>≤42 mmol/mol</td>
+                </tr>
+                <tr>
+                    <td>Leukocyte count (WBC)</td>
+                    <td>4500–11,000/mm³</td>
+                    <td>4.5–11.0×10⁹/L</td>
+                </tr>
+                <tr>
+                    <td>Neutrophils, segmented</td>
+                    <td>54%–62%</td>
+                    <td>0.54–0.62</td>
+                </tr>
+                <tr>
+                    <td>Neutrophils, bands</td>
+                    <td>3%–5%</td>
+                    <td>0.03–0.05</td>
+                </tr>
+                <tr>
+                    <td>Eosinophils</td>
+                    <td>1%–3%</td>
+                    <td>0.01–0.03</td>
+                </tr>
+                <tr>
+                    <td>Basophils</td>
+                    <td>0%–0.75%</td>
+                    <td>0.00–0.0075</td>
+                </tr>
+                <tr>
+                    <td>Lymphocytes</td>
+                    <td>25%–33%</td>
+                    <td>0.25–0.33</td>
+                </tr>
+                <tr>
+                    <td>Monocytes</td>
+                    <td>3%–7%</td>
+                    <td>0.03–0.07</td>
+                </tr>
+                <tr>
+                    <td>CD4+ T-lymphocyte count</td>
+                    <td>≥500/mm³</td>
+                    <td>≥0.5×10⁹/L</td>
+                </tr>
+                <tr>
+                    <td>Platelet count</td>
+                    <td>150,000–400,000/mm³</td>
+                    <td>150–400×10⁹/L</td>
+                </tr>
+                <tr>
+                    <td>Reticulocyte count</td>
+                    <td>0.5%–1.5%</td>
+                    <td>0.005–0.015</td>
+                </tr>
+                <tr>
+                    <td>D-Dimer</td>
+                    <td>≤250 ng/mL</td>
+                    <td>≤1.4 nmol/L</td>
+                </tr>
+                <tr>
+                    <td>Partial thromboplastin time (aPTT) (activated)</td>
+                    <td>25–40 seconds</td>
+                    <td>25–40 seconds</td>
+                </tr>
+                <tr>
+                    <td>Prothrombin time (PT)</td>
+                    <td>11–15 seconds</td>
+                    <td>11–15 seconds</td>
+                </tr>
+                <tr>
+                    <td>Mean corpuscular hemoglobin (MCH)</td>
+                    <td>25–35 pg/cell</td>
+                    <td>0.39–0.54 fmol/cell</td>
+                </tr>
+                <tr>
+                    <td>Mean corpuscular hemoglobin concentration (MCHC)</td>
+                    <td>31%–36% Hb/cell</td>
+                    <td>4.8–5.6 mmol Hb/L</td>
+                </tr>
+                <tr>
+                    <td>Mean corpuscular volume (MCV)</td>
+                    <td>80–100 μm³</td>
+                    <td>80–100 fL</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">Volume</th>
+                </tr>
+                <tr>
+                    <td>Plasma (Male)</td>
+                    <td>25–43 mL/kg</td>
+                    <td>0.025–0.043 L/kg</td>
+                </tr>
+                <tr>
+                    <td>Plasma (Female)</td>
+                    <td>28–45 mL/kg</td>
+                    <td>0.028–0.045 L/kg</td>
+                </tr>
+                <tr>
+                    <td>Red cell (Male)</td>
+                    <td>20–36 mL/kg</td>
+                    <td>0.020–0.036 L/kg</td>
+                </tr>
+                <tr>
+                    <td>Red cell (Female)</td>
+                    <td>19–31 mL/kg</td>
+                    <td>0.019–0.031 L/kg</td>
+                </tr>
+            </table>
+            
+            <!-- 尿液和BMI参考值表格 -->
+            <table class="lab-table" id="urine-table">
+                <tr>
+                    <th>Urine</th>
+                    <th>Reference Range</th>
+                    <th>Sl Reference</th>
+                </tr>
+                <tr>
+                    <td>Calcium</td>
+                    <td>100–300 mg/24 h</td>
+                    <td>2.5–7.5 mmol/24 h</td>
+                </tr>
+                <tr>
+                    <td>Osmolality</td>
+                    <td>50–1200 mOsmol/kg H₂O</td>
+                    <td>50–1200 mOsmol/kg H₂O</td>
+                </tr>
+                <tr>
+                    <td>Oxalate</td>
+                    <td>8–40 μg/mL</td>
+                    <td>90–445 μmol/L</td>
+                </tr>
+                <tr>
+                    <td>Proteins, total</td>
+                    <td>&lt;150 mg/24 h</td>
+                    <td>&lt;0.15 g/24 h</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">17-Hydroxycorticosteroids</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>3.0–10.0 mg/24 h</td>
+                    <td>8.2–27.6 μmol/24 h</td>
+                </tr>
+                <tr>
+                    <td>Female</td>
+                    <td>2.0–8.0 mg/24 h</td>
+                    <td>5.5–22.0 μmol/24 h</td>
+                </tr>
+                <tr class="subheader">
+                    <th colspan="3">17-Ketosteroids, total</th>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>8–20 mg/24 h</td>
+                    <td>28–70 μmol/24 h</td>
+                </tr>
+                <tr>
+                    <td>Female</td>
+                    <td>6–15 mg/24 h</td>
+                    <td>21–52 μmol/24 h</td>
+                </tr>
+                <tr>
+                    <th>Body Mass Index (BMI)</th>
+                    <th>Reference Range</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td>Adult BMI</td>
+                    <td>19–25 kg/m²</td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 其他悬浮窗 -->
+    <div class="floating-window notes-window" id="notes-window">
+        <div class="floating-header">Notes</div>
+        <div class="floating-content notes-content">
+            <textarea id="notes-text" class="notes-textarea"></textarea>
+
+            <!-- 把按钮放进悬浮窗底部 -->
+            <div class="notes-buttons">
+                <button id="save-notes-btn">Save</button>
+                <button id="delete-notes-btn">Delete</button>
+                <button id="close-notes-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-window calculator-window" id="calculator-window">
+        <div class="floating-header">Calculator</div>
+        <div class="floating-content calculator-content">
+            <div class="calculator-grid">
+                <div class="calc-display" id="calc-display"></div>
+                <button class="calc-btn" data-val="+/-">±</button>
+                <button class="calc-btn" data-val="sqrt">√</button>
+                <button class="calc-btn" data-val="1/x">1/x</button>
+                <button class="calc-btn" data-val="/">÷</button>
+                <button class="calc-btn" data-val="7">7</button>
+                <button class="calc-btn" data-val="8">8</button>
+                <button class="calc-btn" data-val="9">9</button>
+                <button class="calc-btn" data-val="*">×</button>
+                <button class="calc-btn" data-val="4">4</button>
+                <button class="calc-btn" data-val="5">5</button>
+                <button class="calc-btn" data-val="6">6</button>
+                <button class="calc-btn" data-val="-">-</button>
+                <button class="calc-btn" data-val="1">1</button>
+                <button class="calc-btn" data-val="2">2</button>
+                <button class="calc-btn" data-val="3">3</button>
+                <button class="calc-btn" data-val="+">+</button>
+                <button class="calc-btn" data-val="C">C</button>
+                <button class="calc-btn" data-val="0">0</button>
+                <button class="calc-btn" data-val=".">.</button>
+                <button class="calc-btn" data-val="=">=</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 警告弹窗 -->
+    <div class="modal" id="end-warning-modal">
+        <div class="modal-content warning-modal">
+            <div class="warning-header">
+                <h3>Warning - This block is incomplete!</h3>
+            </div>
+            <div class="warning-body">
+                <p>Number of unanswered items in this block: <span id="unanswered-count-modal">40</span></p>
+                <p>If you end this block you will not be able to return.</p>
+                <div class="warning-buttons">
+                    <button id="confirm-end-btn" class="end-block-confirm">End Block</button>
+                    <button id="cancel-end-btn" class="remain-block">Remain in Block</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 结算页面 -->
+    <div class="results-page" id="results-page">
+        <div class="results-content">
+            <div class="results-title">You have completed this section of the orientation</div>
+            <div class="results-summary">Result Summary</div>
+            <div class="results-summary">You have correctly answered:</div>
+            <div class="results-score"><span id="correct-count-results">0</span> out of 40 for this examination - <span id="score-results">0</span> correct</div>
+            
+            <table class="results-table">
+                <tbody id="results-table-body">
+                    <!-- 表格内容将通过JS动态生成 -->
+                </tbody>
+            </table>
+            
+            <button id="close-results-btn" class="close-results-btn">Close</button>
+        </div>
+    </div>
+    <script src='script.js'></script>
+</body>
+</html>
