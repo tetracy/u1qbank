@@ -1,0 +1,753 @@
+::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* 全局变量定义 */
+:root {
+    --sidebar-width: calc(100vw * 2.5 / 59.5);  /* 左侧答题卡宽度 */
+    --main-width: calc(100vw * 57 / 59.5);      /* 右侧内容区宽度 */
+    --topbar-height: calc(100vh * 1.5 / 29.5);  /* 顶栏高度 */
+    --content-height: calc(100vh * 26.5 / 29.5); /* 内容区高度 */
+    --bottombar-height: calc(100vh * 1.5 / 29.5); /* 底栏高度 */
+    --font-size: 1rem;                       /* 基础字体大小 */
+    --primary-color: #004a99;                   /* 主色调 */
+    --secondary-color: #990000;                 /* 辅助色 */
+}
+
+/* 基础布局 */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    font-size: var(--font-size);
+    height: 100vh;
+    display: flex;
+}
+
+/* 左侧答题卡 */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    overflow-y: auto;
+    background-color: #fff;
+    border-right: 1px solid #ddd;
+}
+.sidebar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.sidebar li {
+    height: calc(100vh * 27.5 / 29.5 / 50);  /* 每题高度 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    font-size: var(--font-size);
+    position: relative;
+    transition: background-color 0.2s;
+}
+.sidebar li:hover {
+    background-color: #e0e0e0;
+}
+.sidebar li::before {
+    content: "·";
+    color: #000; /* 黑色圆点 */
+    position: absolute;
+    left: 10%;
+    opacity: 0; /* 默认隐藏 */
+}
+.sidebar li.unanswered::before { opacity: 1; } /* 未答题目显示圆点 */
+.sidebar li:nth-child(odd) { background-color: #f5f5f5; }
+.sidebar li:nth-child(even) { background-color: #eaeaea; }
+.sidebar li.marked::after { content: "🚩"; margin-left: 4px; }
+.sidebar li.has-notes::after { content: "✏️"; margin-left: 4px; }
+
+/* 右侧主内容区 */
+.main-content {
+    width: var(--main-width);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 顶栏 */
+.topbar {
+    height: var(--topbar-height);
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 calc(var(--main-width) * 0.5 / 57);
+    justify-content: space-between; /* 三个区域分布 */
+}
+.topbar .item-info {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* 左对齐 */
+    width: auto;
+    flex: 1; /* 占据剩余空间 */
+}
+.topbar .item-info span {
+    margin-right: 10px; /* 与Mark按钮保持间距 */
+}
+.topbar .mark-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-right: 10px; /* 与中间按钮保持间距 */
+    padding: 5px 10px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+}
+.topbar .mark-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.topbar .nav-buttons {
+    display: flex;
+    justify-content: center; /* 中间对齐 */
+    width: auto;
+}
+.topbar .tool-buttons {
+    display: flex;
+    justify-content: flex-end; /* 右对齐 */
+    width: auto;
+    flex: 1; /* 占据剩余空间 */
+}
+.topbar .tool-buttons button {
+    margin-left: 10px; /* 按钮之间保持间距 */
+}
+.topbar button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size);
+    padding: 5px 10px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+}
+.topbar button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 内容区 */
+.content {
+    height: var(--content-height);
+    display: flex;
+    padding: calc(var(--content-height) * 1 / 26.5);
+}
+.question-section {
+    width: calc(var(--main-width) * 28.5 / 57);
+    padding-right: calc(var(--main-width) * 0.5 / 57);
+}
+.question-stem {
+    margin-bottom: calc(var(--content-height) * 1 / 26.5);
+    user-select: text;
+    cursor: text;
+}
+.question-stem mark {
+    background-color: yellow;
+    padding: 0;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.question-stem mark:hover {
+    background-color: #ffd700;
+}
+.options-container {
+    border: 1px solid #999; /* 选项和按钮的外围方框 */
+    padding: calc(var(--content-height) * 0.5 / 26.5);
+    margin-bottom: calc(var(--content-height) * 1 / 26.5);
+    display: inline-block; /* 使方框宽度根据内容调整 */
+}
+.option {
+    margin-bottom: 2px;
+    padding: 3px;
+    user-select: text;
+    cursor: text;
+}
+.option input[type="radio"] {
+    cursor: pointer;
+}
+.option label {
+    cursor: pointer;
+    padding: 2px 5px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+}
+.option label:hover {
+    background-color: rgba(0, 74, 153, 0.1);
+}
+.option.strikethrough label {
+    text-decoration: line-through;
+}
+.show-answer-btn {
+    width: calc(var(--main-width) * 6 / 57);
+    height: calc(var(--content-height) * 1 / 26.5);
+    font-size: calc(var(--font-size) * 0.8); /* 更小的字体 */
+    border: 1px solid #999;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.show-answer-btn:hover {
+    background-color: #f0f0f0;
+}
+.proceed-btn {
+    width: calc(var(--main-width) * 5 / 28.5);
+    height: calc(var(--content-height) * 1 / 26.5);
+    margin: 0 auto;
+    display: block;
+    font-size: var(--font-size);
+    border: 1px solid var(--primary-color);
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.proceed-btn:hover {
+    background-color: #003366;
+}
+.answer-explanation {
+    margin-top: 0px;
+    padding: 0px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    display: none;
+}
+.image-section{
+    width:calc(var(--main-width) * 28.5 / 57);
+    background:#f5f5f5;
+    display:flex;
+    flex-direction:column; /* Added to stack image and explanation */
+    align-items:flex-start; /* Aligns content to the start horizontally */
+    justify-content:flex-start; /* Aligns content to the start vertically */
+    padding:0px;
+    overflow-y:auto;
+}
+.image-section #image-placeholder {
+    display: none;
+}
+
+/* 底栏 */
+.bottombar {
+    height: var(--bottombar-height) ;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 calc(var(--main-width) * 0.5 / 57);
+    justify-content: space-between;
+    position: relative;
+}
+.timer-section {
+    font-size: var(--font-size);
+}
+.end-block-btn {
+    background: none;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: var(--font-size);
+    padding: 5px 10px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+}
+.end-block-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 弹窗 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+.modal-content {
+    background-color: white;
+    border-radius: 5px;
+    text-align: center;
+    font-size: var(--font-size);
+}
+.warning-modal {
+    width: calc(100vw * 39.5 / 59.5);
+    height: calc(100vh * 17.5 / 29.5);
+}
+.warning-header {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+.warning-body {
+    padding: 20px;
+}
+.warning-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+.warning-buttons button {
+    padding: 5px 20px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: opacity 0.2s;
+}
+.warning-buttons button:hover {
+    opacity: 0.8;
+}
+.end-block-confirm {
+    background-color: var(--secondary-color);
+}
+.remain-block {
+    background-color: var(--primary-color);
+}
+
+/* 结算页面 */
+.results-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.results-content {
+    padding: 20px;
+    max-width: 90%;
+    width: 800px;
+}
+.results-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+.results-summary {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+.results-score {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px auto;
+    font-size: 0.9rem;
+}
+.results-table td {
+    border: 1px solid #ddd;
+    padding: 8px 5px;
+    text-align: center;
+}
+.results-table .question-number {
+    text-align: right;
+    padding-right: 10px;
+    font-weight: bold;
+}
+.results-table .correct-answer {
+    color: #28a745;
+    font-weight: bold;
+}
+.results-table .wrong-answer {
+    color: #dc3545;
+    font-weight: bold;
+}
+.close-results-btn {
+    padding: 10px 30px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+    margin-top: 20px;
+}
+.close-results-btn:hover {
+    background-color: #003366;
+}
+
+/* 悬浮窗 */
+.floating-window {
+    position: absolute;
+    bottom: calc(var(--bottombar-height) + 40px);
+    right: calc(var(--main-width) * 1 / 57);
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 100;
+}
+.notes-window {
+    width: calc(var(--main-width) * 10 / 59.5);
+    height: calc(var(--content-height) * 6 / 26.5);
+}
+.calculator-window {
+    width: calc(var(--main-width) * 10 / 59.5);
+    height: calc(var(--content-height) * 12 / 26.5);
+}
+.floating-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 5px;
+    text-align: center;
+}
+.floating-content {
+    padding: 10px;
+}
+.notes-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.notes-textarea {
+    flex: 1;
+    margin-bottom: 10px;
+}
+.notes-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+.notes-buttons button {
+    cursor: pointer;
+    padding: 3px 8px;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+}
+.notes-buttons button:hover {
+    background-color: #f0f0f0;
+}
+.calculator-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 5px;
+    height: 100%;
+}
+.calc-display {
+    grid-column: span 4;
+    text-align: right;
+    padding: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+}
+.calc-btn {
+    cursor: pointer;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+}
+.calc-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* 实验室参考值悬浮窗 */
+.lab-reference-window {
+    position: absolute;
+    top: var(--topbar-height);
+    right: 0;
+    width: calc(100vw * 20 / 59.5);
+    height: calc(100vh * 26 / 29.5);
+    background-color: white;
+    border-left: 1px solid #ddd;
+    display: none;
+    flex-direction: column;
+    z-index: 100;
+    font-size: calc(var(--font-size) * 0.8); /* 比题目字体小三号 */
+}
+
+.lab-tabs {
+    display: flex;
+    height: calc(100vh * 1 / 29.5);
+    border-bottom: 1px solid #ddd;
+}
+
+.lab-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-right: 1px solid #ddd;
+    transition: background-color 0.2s;
+}
+
+.lab-tab:last-child {
+    border-right: none;
+}
+
+.lab-tab.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.lab-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 5px;
+}
+
+.lab-table {
+    width: 100%;
+    border-collapse: collapse;
+    display: none;
+}
+
+.lab-table.active {
+    display: table;
+}
+
+.lab-table th, .lab-table td {
+    border: 1px solid #ddd;
+    padding: 3px;
+    text-align: left;
+}
+
+.lab-table th {
+    background-color: #f5f5f5;
+}
+
+.lab-table tr.subheader th {
+    padding-left: 15px;
+}
+
+/* 图标样式 */
+.icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 2px;
+}
+.red-hexagon {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background-color: red;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    margin-right: 2px;
+}
+.green-arrow {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    margin-right: 2px;
+    background-color: green;
+    clip-path: polygon(0 50%, 100% 50%, 70% 0, 70% 100%);
+}
+
+/* 闪烁动画 */
+@keyframes blink {
+    0% { color: white; }
+    50% { color: red; }
+    100% { color: white; }
+}
+.blink {
+    animation: blink 1s infinite;
+}
+/* 让按钮区域固定在悬浮窗底部 */
+.notes-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.notes-textarea {
+    flex: 1;               /* 占满剩余高度 */
+    margin-bottom: 8px;    /* 与按钮留一点间距 */
+    resize: none;          /* 禁止拖动改变大小，保持整洁 */
+    font-size: 0.75rem;
+}
+
+.notes-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;              /* 按钮之间小间隔 */
+}
+
+.notes-buttons button {
+    flex: 1;               /* 三按钮等宽 */
+    padding: 4px 0;
+    font-size: 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: #fafafa;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notes-buttons button:hover {
+    background: #e8e8e8;
+}
+/* 固定计算器显示屏高度，禁止自动变高 */
+.calc-display {
+    grid-column: span 4;
+    height: 28px;                /* ← 固定高度，可自行微调 */
+    line-height: 28px;           /* 垂直居中 */
+    padding: 0 8px;              /* 左右留空 */
+    font-size: 1rem;             /* 统一字号 */
+    white-space: nowrap;         /* 禁止换行 */
+    overflow: hidden;            /* 超出隐藏 */
+    text-align: right;
+    border: 1px solid #ddd;
+    background: #fff;
+    box-sizing: border-box;      /* 防止 padding 撑高 */
+}
+.main-content{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+.content{flex:1;display:flex;overflow:hidden;padding:0;}
+.question-section{width:calc(var(--main-width) * 0.5);padding:calc(var(--content-height) * 1 / 30);display:flex;flex-direction:column;overflow-y:auto;}
+.question-stem{font-size:1.2rem;line-height:1.5;flex-shrink:0;}
+.options-container{flex-shrink:0;margin-bottom:10px;}
+/* The #answer-explanation styling remains the same, as its internal properties are fine */
+#answer-explanation{height:100%vh;overflow-y:auto;font-size:0.75rem;padding:10px;border:1px solid #ddd;background:#f9f9f9;display:none;flex-shrink:0;margin-bottom:10px;}
+#image-container img{max-width:100%;max-height:80%;object-fit:contain;border-radius:3px;cursor:zoom-in;}
+.bottombar{height:var(--bottombar-height);background:var(--primary-color);color:white;display:flex;align-items:center;padding:0 calc(var(--main-width) * 0.5 / 57);justify-content:space-between;position:sticky;bottom:0;z-index:1000;}
+.image-modal{display:none;position:fixed;top:10;left:10;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;justify-content:center;align-items:center;}
+.image-modal img{max-width:90%;max-height:90%;transition:transform .2s;transform-origin:center;user-select:none;}
+.image-modal .close-btn{position:absolute;top:15px;right:25px;font-size:36px;color:white;cursor:pointer;z-index:10000;}
+
+/* floating window for a tags */
+
+/* Main container for the floating image window */
+.image-window-container {
+    position: fixed; /* Stays in place relative to viewport */
+    top: 50px; /* Initial position, adjust as needed */
+    left: 50px; /* Initial position, adjust as needed */
+    width: 700px; /* Initial width */
+    height: 600px; /* Initial height */
+    min-width: 200px; /* Minimum width to prevent too small */
+    min-height: 150px; /* Minimum height */
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    overflow: hidden; /* Hide content that goes beyond bounds */
+    z-index: 1000; /* Ensure it's on top of other content */
+
+    display: flex; /* Use flexbox for header and body layout */
+    flex-direction: column;
+
+    /* Hidden by default */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease; /* Smooth transition for show/hide */
+}
+
+/* Show window */
+.image-window-container.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Hide window (for minimize or close) */
+.image-window-container.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Maximized state */
+.image-window-container.is-maximized {
+    top: 0 !important; /* Override JS positioning */
+    left: 0 !important; /* Override JS positioning */
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0;
+    transform: none !important; /* Remove any translate */
+}
+
+/* Header bar */
+.image-window-header {
+    background-color: #3f51b5; /* Blue color from the image */
+    color: white;
+    padding: 5px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab; /* Indicate draggable */
+    flex-shrink: 0; /* Prevent header from shrinking */
+    user-select: none; /* Prevent text selection during drag */
+}
+
+.image-window-header.is-dragging {
+    cursor: grabbing;
+}
+
+.image-window-title {
+    flex-grow: 1; /* Allow title to take available space */
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.image-window-controls {
+    display: flex;
+    gap: 5px; /* Space between buttons */
+}
+
+.image-window-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px; /* Adjust size for icons */
+    line-height: 1;
+    padding: 3px 6px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+}
+
+.image-window-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Specific button colors/styles if needed */
+.image-window-button.close-button:hover {
+    background-color: #f44336; /* Red for close button hover */
+}
+
+/* Body of the window (contains the image) */
+.image-window-body {
+    flex-grow: 1; /* Allow body to take remaining space */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto; /* Add scrollbars if image is larger than body */
+    padding: 10px; /* Padding around the image */
+}
+
+/* Image inside the window */
+.image-window-image {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    object-fit: contain;
+}
